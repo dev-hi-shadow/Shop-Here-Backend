@@ -1,10 +1,52 @@
 {
     "version": 2,
-    "name": "shophere-backend",
     "builds": [
-       { "src": "/", "use": "@vercel/node" }
+      {
+        "src": "index.js",  
+        "use": "@vercel/node"
+      }
     ],
     "routes": [
-       { "src": "(.*)", "dest": "/" }
+      {
+        "src": "/api/v1/user",
+        "dest": "/index.js" 
+      },
+      {
+        "src": "/api/v1/category",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/api/v1/sub-category",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/api/v1/attribute",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/api/v1/brand",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/api/v1/unit",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/api/v1/role",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/api/v1/address",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/api/v1/product",
+        "dest": "/index.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/index.js"
+      }
     ]
- }
+  }
+  
