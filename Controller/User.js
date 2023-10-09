@@ -8,11 +8,11 @@ exports.createUser = async (req, res, next) => {
     const user = await User.create({ email, phone, name, password, role_id });
     const token = await user.GetAuthToken();
 
-    res
-      .cookie("token", token, {
-        expire: new Date(Date.now + 10800000000),
-        httpOnly: true,
-      })
+    res.cookie('token', token, {
+      httpOnly: false, // Depending on your needs
+      secure: false,    // Enforce HTTPS
+      sameSite: 'None', // Allow cross-origin cookies
+    })
       .status(201)
       .json({
         success: true,
@@ -65,7 +65,6 @@ exports.loginUser = async (req, res, next) => {
       .status(200)
       .cookie("token", token, {
         expire: new Date(Date.now + 10800000000),
-        httpOnly: true,
       })
       .json({
         success: true,

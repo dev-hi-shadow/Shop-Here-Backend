@@ -1,9 +1,14 @@
 const mongoose = require("mongoose");
 const product_schema = new mongoose.Schema(
   {
+
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     name: { type: String, required: true },
     description: { type: String, required: true },
     extra_description: { type: String },
+    product_type: {
+      type: String, required: true, enum: ["Variable", "Standard"],
+    },
     brand_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "brand",
@@ -26,7 +31,10 @@ const product_schema = new mongoose.Schema(
     },
     min_order_quantity: { type: Number, default: 1 },
     max_order_quantity: { type: Number },
-    attributes: { type: [] },
+    attributes: [{
+      attribute_id: { type: mongoose.Schema.Types.ObjectId, ref: "attribute" },
+      values: { type: [], ref: "attribute" }
+    }],
     images: { type: [] },
     SKU: { type: String, required: true },
     freshness: {
@@ -39,12 +47,10 @@ const product_schema = new mongoose.Schema(
       default: "Standard",
       enum: ["Standard", "Pack Of"],
     },
-    dimensions: { type: [] },
     returnable: { type: Boolean, required: true },
     cancellable: { type: Boolean, required: true },
     replaceable: { type: Boolean, required: true },
     friendly_url: { type: String, required: true },
-    when_out_of_stock: { type: Boolean, required: true },
     meta_title: { type: String },
     meta_description: { type: String },
     price: { type: [], required: true },

@@ -3,6 +3,7 @@ const Product = require("../Model/Product");
 exports.CreateProduct = async (req, res, next) => {
   try {
     const {
+      variations,
       name,
       description,
       extra_description,
@@ -22,17 +23,15 @@ exports.CreateProduct = async (req, res, next) => {
       cancellable,
       replaceable,
       friendly_url,
-      when_out_of_stock,
       meta_title,
       meta_description,
-      price,
       guarantee,
       warranty,
     } = req.body;
 
     const user_id = req.user;
     const exists = await Product.exists({
-      $and: [{ name }, { user_id }],
+      $and: [{ name }, { user_id }, { SKU }],
     });
     if (exists) {
       return res.status(400).json({
@@ -41,7 +40,7 @@ exports.CreateProduct = async (req, res, next) => {
         message: "you have already added this product ",
       });
     }
-    const product = await Product.create({
+    const newproduct = await Product.create({
       user_id: req.user,
       name,
       description,
@@ -57,18 +56,33 @@ exports.CreateProduct = async (req, res, next) => {
       SKU,
       freshness,
       type,
+      variations,
       dimensions,
       returnable,
       cancellable,
       replaceable,
       friendly_url,
-      when_out_of_stock,
       meta_title,
       meta_description,
-      price,
       guarantee,
       warranty,
-    });
+    })
+    const product = await Product.findById(newproduct._id).populate([{
+      path: "category_id",
+      model: "category"
+    }, {
+      path: "subcategory_id",
+      model: "subcategory"
+    }, {
+      path: "brand_id",
+      model: "brand"
+    }, {
+      path: "attributes.attribute_id",
+      model: "attribute"
+    }, {
+      path: "attributes.values",
+      model: "attribute"
+    }]);
     return res.status(201).json({
       success: true,
       status: 201,
@@ -90,23 +104,23 @@ exports.GetProduct = async (req, res, next) => {
     const products = await Product.find({}).populate([
       {
         path: "brand_id",
-        model: "brand", // Assuming "brand" is the model name
+        model: "brand",
       },
       {
         path: "unit_id",
-        model: "unit", // Assuming "unit" is the model name
+        model: "unit",
       },
       {
         path: "category_id",
-        model: "category", // Assuming "category" is the model name
+        model: "category",
       },
       {
         path: "subcategory_id",
-        model: "subcategory", // Assuming "subcategory" is the model name
+        model: "subcategory",
       },
       {
         path: "attributes.attribute_id",
-        model: "attribute", // Assuming "attributes" is the model name
+        model: "attribute", 
       },
       {
         path: "attributes.values._id",
@@ -135,6 +149,7 @@ exports.UpdateProduct = async (req, res, next) => {
     const { id } = req.params;
     const {
       name,
+      variations,
       description,
       extra_description,
       brand_id,
@@ -144,7 +159,6 @@ exports.UpdateProduct = async (req, res, next) => {
       min_order_quantity,
       max_order_quantity,
       attributes,
-      images,
       SKU,
       freshness,
       type,
@@ -156,12 +170,11 @@ exports.UpdateProduct = async (req, res, next) => {
       when_out_of_stock,
       meta_title,
       meta_description,
-      price,
       guarantee,
       warranty,
       is_publish,
     } = req.body;
-
+    const tempObject = {}
     const exists = await Product.findOne({ _id: id });
     if (name) {
       if (await Product.exists({ name })) {
@@ -174,6 +187,7 @@ exports.UpdateProduct = async (req, res, next) => {
       tempObject.name = name;
     }
     if (description) tempObject.description = description;
+    if (variations) tempObject.variations = variations;
     if (extra_description) tempObject.extra_description = extra_description;
     if (brand_id) tempObject.brand_id = brand_id;
     if (unit_id) tempObject.unit_id = unit_id;
@@ -182,8 +196,7 @@ exports.UpdateProduct = async (req, res, next) => {
     if (min_order_quantity) tempObject.min_order_quantity = min_order_quantity;
     if (max_order_quantity) tempObject.max_order_quantity = max_order_quantity;
     if (attributes) tempObject.attributes = attributes;
-    if (images) tempObject.images = images;
-    if (SKU) {
+     if (SKU) {
       if (await Product.exists({ SKU })) {
         return res.status(400).json({
           success: false,
@@ -203,9 +216,9 @@ exports.UpdateProduct = async (req, res, next) => {
     if (when_out_of_stock) tempObject.when_out_of_stock = when_out_of_stock;
     if (meta_title) tempObject.meta_title = meta_title;
     if (meta_description) tempObject.meta_description = meta_description;
-    if (price) tempObject.price = price;
     if (guarantee) tempObject.guarantee = guarantee;
     if (warranty) tempObject.warranty = warranty;
+    if (typeof is_publish === "boolean") tempObject.is_publish = is_publish;
 
     const product = await Product.findByIdAndUpdate(id, tempObject, {
       new: true,
@@ -245,9 +258,8 @@ exports.DeleteAndRecoverProduct = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Product ${
-        product.is_deleted ? "Delete" : "Recover"
-      }  Successful`,
+      message: `Product ${product.is_deleted ? "Delete" : "Recover"
+        }  Successful`,
       data: product,
     });
   } catch (error) {
