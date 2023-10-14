@@ -6,9 +6,9 @@ exports.CreateSubCategory = async (req, res, next) => {
   try {
     const exists = await SubCategories.findOne({
       $or: [
-        { name: name },
-        { name: name && name.toLowerCase() },
-        { name: name && name.toUpperCase() },
+        { name: name, category_id: category_id },
+        { name: name && name.toLowerCase(), category_id: category_id },
+        { name: name && name.toUpperCase(), category_id: category_id },
       ],
     });
     if (exists) {
@@ -23,8 +23,7 @@ exports.CreateSubCategory = async (req, res, next) => {
       is_publish: true,
       is_deleted: false,
     });
-    console.log(" category_available", category_available);
-    if (!category_available) {
+     if (!category_available) {
       return res.status(400).json({
         success: false,
         status: 400,
@@ -125,9 +124,8 @@ exports.DeleteAndRecoverSubCategory = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Profile ${
-        subcategory.is_deleted ? "Delete" : "Recover"
-      }  Successful`,
+      message: `Profile ${subcategory.is_deleted ? "Delete" : "Recover"
+        }  Successful`,
       data: subcategory,
     });
   } catch (error) {

@@ -24,8 +24,7 @@ app.use("/api/v1/unit", require("./Routes/Unit"));
 app.use("/api/v1/role", require("./Routes/Role"));
 app.use("/api/v1/address", require("./Routes/Address"));
 app.use("/api/v1/product", require("./Routes/Product"));
-app.use("/api/v1/variation", require("./Routes/Variation"));
-
+ 
 app.listen(port, () => {
   console.log(`server is running on port ${port}`);
 });
