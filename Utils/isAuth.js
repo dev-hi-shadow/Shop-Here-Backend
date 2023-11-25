@@ -1,7 +1,6 @@
 const JWT = require("jsonwebtoken");
 
 exports.isAuth = async (req, res, next) => {
-  console.log(" req", req)
   try {
     const { token } = req.cookies;
     if (!token)

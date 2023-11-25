@@ -53,7 +53,15 @@ const product_schema = new mongoose.Schema(
     friendly_url: { type: String, required: true },
     meta_title: { type: String },
     meta_description: { type: String },
-    price: { type: [], required: true },
+    price: [
+      {
+        attribute_ids: { type: [] },
+        variation: String,
+        manufacture_price: Number,
+        retail_price: Number,
+        is_publish: { type: Boolean, default: false }
+      }
+    ],
     guarantee: { type: String },
     warranty: { type: String },
     is_publish: { type: Boolean, default: false },
