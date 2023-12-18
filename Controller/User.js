@@ -9,7 +9,7 @@ exports.createUser = async (req, res, next) => {
     const token = await user.GetAuthToken();
 
     res.cookie('token', token, {
-      httpOnly: false, // Depending on your needs
+      httpOnly: false, // Depending on your needsS
       secure: false,    // Enforce HTTPS
       sameSite: 'None', // Allow cross-origin cookies
     })
@@ -32,7 +32,10 @@ exports.createUser = async (req, res, next) => {
 exports.loginUser = async (req, res, next) => {
   const { credential, password } = req.body;
   try {
+    console.log("  credential, password", credential, password)
+    console.log(" typeof credential", typeof credential)
     if (!credential || !password) {
+      console.log(" credential", credential)
       return res.status(401).json({
         success: false,
         status: 401,
@@ -49,6 +52,7 @@ exports.loginUser = async (req, res, next) => {
         phone: credential,
       });
     }
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -63,13 +67,10 @@ exports.loginUser = async (req, res, next) => {
     const token = await user.GetAuthToken();
     res
       .status(200)
-      .cookie("token", token, {
-        expire: new Date(Date.now + 10800000000),
-      })
       .json({
         success: true,
         message: credential + " Login Successful",
-        data: user,
+        data: { ...user, token },
       });
   } catch (error) {
     console.log(error.message);
@@ -192,17 +193,16 @@ exports.GetProfile = async (req, res, next) => {
 
 exports.logoutUser = async (req, res, next) => {
   try {
-    const user_id = req.user
-    const user = await User.findById(user_id);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        status: 404,
-        message: "User not found",
-      });
-    }
+    // const user_id = req.user
+    // const user = await User.findById(user_id);
+    // if (!user) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     status: 404,
+    //     message: "User not found",
+    //   });
+    // }
     res
-      .clearCookie("token")
       .status(200)
       .json({ success: true, status: 200, message: "Logout Successful" });
   } catch (error) {

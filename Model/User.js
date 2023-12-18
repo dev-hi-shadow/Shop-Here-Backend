@@ -48,7 +48,7 @@ User_Schema.methods.GetAuthToken = async function () {
 };
 
 User_Schema.methods.ComparePassword = async function (userPassword) {
-  const isMatch = await bcrypt.compare(userPassword.toString(), this.password);
+  const isMatch = await bcrypt.compare(userPassword, this.password);
   return isMatch;
 };
 
