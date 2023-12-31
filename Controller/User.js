@@ -5,20 +5,16 @@ exports.createUser = async (req, res, next) => {
   const { email, phone, name, password } = req.body;
   try {
     const role_id = await Role.distinct("_id", { name: "USER" });
-    const user = await User.create({ email, phone, name, password, role_id });
+    let user = await User.create({ email, phone, name, password, role_id });
     const token = await user.GetAuthToken();
 
-    res.cookie('token', token, {
-      httpOnly: false, // Depending on your needsS
-      secure: false,    // Enforce HTTPS
-      sameSite: 'None', // Allow cross-origin cookies
-    })
+    res
       .status(201)
       .json({
         success: true,
         status: 201,
         message: "User registration successful",
-        data: user,
+        data: { user, token: token },
       });
   } catch (error) {
     res.status(500).json({
@@ -31,27 +27,15 @@ exports.createUser = async (req, res, next) => {
 
 exports.loginUser = async (req, res, next) => {
   const { credential, password } = req.body;
-  try {
-    console.log("  credential, password", credential, password)
-    console.log(" typeof credential", typeof credential)
+   try {
     if (!credential || !password) {
-      console.log(" credential", credential)
       return res.status(401).json({
         success: false,
         status: 401,
         message: "please fill all the fields",
       });
     }
-    let user;
-    if (typeof credential === "string") {
-      user = await User.findOne({
-        email: credential,
-      });
-    } else {
-      user = await User.findOne({
-        phone: credential,
-      });
-    }
+    const user = await User.findOne({ email: credential });
 
     if (!user) {
       return res.status(401).json({
@@ -70,7 +54,7 @@ exports.loginUser = async (req, res, next) => {
       .json({
         success: true,
         message: credential + " Login Successful",
-        data: { ...user, token },
+        data: { user, token },
       });
   } catch (error) {
     console.log(error.message);
@@ -177,6 +161,7 @@ exports.DeleteAndRecoverProfile = async (req, res, next) => {
 
 exports.GetProfile = async (req, res, next) => {
   try {
+
     const user = await User.findById(req.user);
     if (!user) {
       return res.status(404).json({
@@ -193,15 +178,15 @@ exports.GetProfile = async (req, res, next) => {
 
 exports.logoutUser = async (req, res, next) => {
   try {
-    // const user_id = req.user
-    // const user = await User.findById(user_id);
-    // if (!user) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     status: 404,
-    //     message: "User not found",
-    //   });
-    // }
+    const user_id = req.user
+    const user = await User.findById(user_id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        status: 404,
+        message: "User not found",
+      });
+    }
     res
       .status(200)
       .json({ success: true, status: 200, message: "Logout Successful" });
