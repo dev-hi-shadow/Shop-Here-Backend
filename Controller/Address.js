@@ -131,10 +131,9 @@ exports.UpdateAddress = async (req, res, next) => {
 exports.DeleteAndRecoverAddress = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const exists = await Address.findById(id);
     const address = await Address.findByIdAndUpdate(
       id,
-      { is_deleted: !exists.is_deleted },
+      { is_deleted: req.body.is_deleted },
       { new: true }
     );
     if (!address) {
@@ -147,9 +146,8 @@ exports.DeleteAndRecoverAddress = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Address ${
-        address.is_deleted ? "Delete" : "Recover"
-      }  Successful`,
+      message: `Address ${address.is_deleted ? "Delete" : "Recover"
+        }  Successful`,
       data: brand,
     });
   } catch (error) {

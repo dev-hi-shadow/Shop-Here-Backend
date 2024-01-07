@@ -11,6 +11,6 @@ const router = express.Router();
 router.route("/create").post(isAuth, BrandCreate);
 router.route("/").get(GetBrand);
 router.route("/update/:id").put(isAuth ,UpdateBrand);
-router.route("/delete-recover/:id").delete(isAuth ,DeleteAndRecoverBrand);
+router.route("/delete-recover/:id").put(isAuth ,DeleteAndRecoverBrand);
 
 module.exports = router;

@@ -99,10 +99,9 @@ exports.UpdateCategory = async (req, res, next) => {
 exports.DeleteAndRecoverCategory = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const exists = await Categories.findById(id);
     const category = await Categories.findByIdAndUpdate(
       id,
-      { is_deleted: !exists.is_deleted },
+      { is_deleted: req.body.is_deleted },
       { new: true }
     );
     if (!category) {
@@ -115,9 +114,8 @@ exports.DeleteAndRecoverCategory = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Category ${
-        category.is_deleted ? "Delete" : "Recover"
-      }  Successful`,
+      message: `Category ${category.is_deleted ? "Delete" : "Recover"
+        }  Successful`,
       data: category,
     });
   } catch (error) {

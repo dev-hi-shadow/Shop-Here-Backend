@@ -112,17 +112,12 @@ exports.UpdateAttribute = async (req, res, next) => {
 exports.DeleteAndRecoverAttribute = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const exists = await Attribute.findById(id);
-    let attribute;
-    if (exists.attribute_id) {
-      attribute = await Attribute.findByIdAndDelete(id);
-    } else {
-      attribute = await Attribute.findByIdAndUpdate(
-        id,
-        { is_deleted: !exists.is_deleted },
-        { new: true }
-      );
-    }
+
+    const attribute = await Attribute.findByIdAndUpdate(
+      id,
+      { is_deleted: req.body.is_deleted },
+      { new: true }
+    );
     if (!attribute) {
       return res.status(404).json({
         success: false,
@@ -133,9 +128,8 @@ exports.DeleteAndRecoverAttribute = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Attribute ${
-        attribute.is_deleted ? "Delete" : "Recover"
-      } Successful`,
+      message: `Attribute ${attribute.is_deleted ? "Delete" : "Recover"
+        } Successful`,
       data: attribute,
     });
   } catch (error) {
@@ -148,60 +142,5 @@ exports.DeleteAndRecoverAttribute = async (req, res, next) => {
   }
 };
 
-exports.AddValue = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { name } = req.body;
-    const attribute = await Attribute.findByIdAndUpdate(
-      id,
-      { $push: { values: { name } } },
-      { new: true }
-    );
-    if (!attribute) {
-      return res.status(404).json({
-        success: false,
-        status: 404,
-        message: "attribute not found",
-      });
-    }
-    res.status(200).json({
-      success: true,
-      status: 200,
-      message: "Attribute Add Successfully",
-      data: attribute,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, status: 500, message: error.message });
-  }
-};
-exports.DeleteValue = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { value } = req.body;
 
-    const attribute = await Attribute.findByIdAndUpdate(
-      id,
-      { $pull: { values: { _id: value } } },
-      { new: true }
-    );
-    if (!attribute) {
-      return res.status(404).json({
-        success: false,
-        status: 404,
-        message: "attribute not found",
-      });
-    }
-    res.status(200).json({
-      success: true,
-      status: 200,
-      message: "Attribute Delete Successfully",
-      data: attribute,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, status: 500, message: error.message });
-  }
-};
+

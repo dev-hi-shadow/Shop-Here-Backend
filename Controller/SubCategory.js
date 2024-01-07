@@ -23,7 +23,7 @@ exports.CreateSubCategory = async (req, res, next) => {
       is_publish: true,
       is_deleted: false,
     });
-     if (!category_available) {
+    if (!category_available) {
       return res.status(400).json({
         success: false,
         status: 400,
@@ -108,10 +108,9 @@ exports.UpdateSubCategory = async (req, res, next) => {
 exports.DeleteAndRecoverSubCategory = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const exist = await SubCategories.findById(id);
     const subcategory = await SubCategories.findByIdAndUpdate(
       id,
-      { is_deleted: !exist.is_deleted },
+      { is_deleted: req.body.is_deleted },
       { new: true }
     );
     if (!subcategory) {
@@ -124,7 +123,7 @@ exports.DeleteAndRecoverSubCategory = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Profile ${subcategory.is_deleted ? "Delete" : "Recover"
+      message: `Sub-Category ${subcategory.is_deleted ? "Delete" : "Recover"
         }  Successful`,
       data: subcategory,
     });

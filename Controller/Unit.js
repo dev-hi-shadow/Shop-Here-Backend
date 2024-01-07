@@ -77,10 +77,9 @@ exports.DeleteAndRecoverUnit = async (req, res, next) => {
     try {
         const id = req.params.id;
 
-        const exists = await Unit.findById(id);
         const unit = await Unit.findByIdAndUpdate(
             id,
-            { is_deleted: !exists.is_deleted },
+            { is_deleted: req.body.is_deleted },
             { new: true }
         );
         if (!unit) {

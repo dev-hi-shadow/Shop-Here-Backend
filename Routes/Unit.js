@@ -11,6 +11,6 @@ const router = express.Router();
 router.route("/create").post(isAuth, UnitCreate);
 router.route("/").get(GetUnit);
 router.route("/update/:id").put(isAuth ,UpdateUnit);
-router.route("/delete-recover/:id").delete(isAuth ,DeleteAndRecoverUnit);
+router.route("/delete-recover/:id").put(isAuth ,DeleteAndRecoverUnit);
 
 module.exports = router;

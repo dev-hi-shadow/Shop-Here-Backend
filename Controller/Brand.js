@@ -77,12 +77,10 @@ exports.UpdateBrand = async (req, res, next) => {
 exports.DeleteAndRecoverBrand = async (req, res, next) => {
   try {
     const id = req.params.id;
-    console.log(" id", id)
-
-    const exists = await Brand.findById(id);
-    const brand = await Brand.findByIdAndUpdate(
+ 
+     const brand = await Brand.findByIdAndUpdate(
       id,
-      { is_deleted: !exists.is_deleted },
+      { is_deleted: req.body.is_deleted },
       { new: true }
     );
     if (!brand) {

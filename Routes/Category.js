@@ -11,6 +11,6 @@ const router = express.Router();
 router.route("/create").post(isAuth ,CreateCategory);
 router.route("/").get(GetCategory);
 router.route("/update/:id").put(isAuth ,UpdateCategory);
-router.route("/delete-recover/:id").delete(isAuth ,DeleteAndRecoverCategory);
+router.route("/delete-recover/:id").put(isAuth ,DeleteAndRecoverCategory);
 
 module.exports = router;
