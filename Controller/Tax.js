@@ -1,22 +1,22 @@
-const Unit = require("../Model/Unit");
+const Tax = require("../Model/Tax");
 
-exports.UnitCreate = async (req, res, next) => {
+exports.TaxCreate = async (req, res, next) => {
   try {
-    const { name, unit_code } = req.body;
-    const exists = await Unit.exists({ $or: [{ name }, { unit_code }] });
+    const { name, value } = req.body;
+    const exists = await Tax.exists({ $or: [{ name }, { value }] });
     if (exists) {
       return res.status(400).json({
         success: false,
         status: 400,
-        message: "Unit name or code already exists",
+        message: "Tax name or code already exists",
       });
     }
-    const unit = await Unit.create({ name, unit_code });
+    const tax = await Tax.create({ name, value });
     res.status(201).json({
       success: true,
       status: 200,
-      message: "Unit created successfully",
-      data: unit,
+      message: "Tax created successfully",
+      data: tax,
     });
   } catch (error) {
     return res
@@ -25,14 +25,14 @@ exports.UnitCreate = async (req, res, next) => {
   }
 };
 
-exports.GetUnit = async (req, res, next) => {
+exports.GetTax = async (req, res, next) => {
   try {
-    const unit = await Unit.find().lean();
+    const tax = await Tax.find().lean();
     res.status(200).json({
       success: true,
       status: 200,
-      message: "unit fetched successfully",
-      data: unit,
+      message: "tax fetched successfully",
+      data: tax,
     });
   } catch (error) {
     return res
@@ -41,15 +41,15 @@ exports.GetUnit = async (req, res, next) => {
   }
 };
 
-exports.UpdateUnit = async (req, res, next) => {
+exports.UpdateTax = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, unit_code } = req.body;
+    const { name, value } = req.body;
     const tempObject = {};
 
-    const unit = await Unit.findByIdAndUpdate(
+    const tax = await Tax.findByIdAndUpdate(
       id,
-      { name, unit_code },
+      { name, value },
       {
         new: true,
       }
@@ -57,8 +57,8 @@ exports.UpdateUnit = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: "Unit updated successfully",
-      data: unit,
+      message: "Tax updated successfully",
+      data: tax,
     });
   } catch (error) {
     return res
@@ -67,27 +67,27 @@ exports.UpdateUnit = async (req, res, next) => {
   }
 };
 
-exports.DeleteAndRecoverUnit = async (req, res, next) => {
+exports.DeleteAndRecoverTax = async (req, res, next) => {
   try {
     const id = req.params.id;
 
-    const unit = await Unit.findByIdAndUpdate(
+    const tax = await Tax.findByIdAndUpdate(
       id,
       { is_deleted: req.body.is_deleted },
       { new: true }
     );
-    if (!unit) {
+    if (!tax) {
       return res.status(404).json({
         success: false,
         status: 404,
-        message: "unit not found",
+        message: "tax not found",
       });
     }
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Unit ${unit.is_deleted ? "Delete" : "Recover"}  Successful`,
-      data: unit,
+      message: `Tax ${tax.is_deleted ? "Delete" : "Recover"}  Successful`,
+      data: tax,
     });
   } catch (error) {
     console.log(error.message);

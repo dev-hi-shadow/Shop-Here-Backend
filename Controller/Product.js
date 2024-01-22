@@ -3,11 +3,16 @@ const Product = require("../Model/Product");
 exports.CreateProduct = async (req, res, next) => {
   try {
     const {
-      variations,
-      product_type,
-      name,
+      seller_id,
+      created_by,
+      pickup_locations,
       description,
+      name,
       extra_description,
+      product_type,
+      made_in,
+      assembled_in,
+      short_description,
       brand_id,
       unit_id,
       category_id,
@@ -16,20 +21,54 @@ exports.CreateProduct = async (req, res, next) => {
       max_order_quantity,
       attributes,
       images,
-      price,
       SKU,
       freshness,
-      type,
-      dimensions,
       returnable,
       cancellable,
+      is_tax_included,
+      tax_id,
+      is_cod_allowed,
       replaceable,
       friendly_url,
       meta_title,
       meta_description,
-      guarantee,
-      warranty,
+      variation,
+      guarantee_period,
+      warranty_period,
     } = req.body;
+
+    if (
+      !pickup_locations ||
+      !description ||
+      !name ||
+      !product_type ||
+      !made_in ||
+      !short_description ||
+      !brand_id ||
+      !unit_id ||
+      !category_id ||
+      !subcategory_id ||
+      !attributes ||
+      !SKU ||
+      !freshness ||
+      !returnable ||
+      !cancellable ||
+      !is_tax_included ||
+      !tax_id ||
+      !is_cod_allowed ||
+      !replaceable ||
+      !friendly_url ||
+      !meta_title ||
+      !variation ||
+      !guarantee_period ||
+      !warranty_period
+    ) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: "Please fill all the fields",
+      });
+    }
 
     const user_id = req.user;
     const exists = await Product.exists({
@@ -44,54 +83,13 @@ exports.CreateProduct = async (req, res, next) => {
     }
     const newproduct = await Product.create({
       user_id: req.user,
-      name,
-      description,
-      extra_description,
-      brand_id,
-      unit_id,
-      category_id,
-      subcategory_id,
-      min_order_quantity,
-      max_order_quantity,
-      attributes,
-      images,
-      SKU,
-      freshness,
-      type,
-      variations,
-      dimensions,
-      returnable,
-      cancellable,
-      replaceable,
-      friendly_url,
-      meta_title,
-      meta_description,
-      guarantee,
-      warranty,
-      product_type,
-      price
-    })
-    const product = await Product.findById(newproduct._id).populate([{
-      path: "category_id",
-      model: "category"
-    }, {
-      path: "subcategory_id",
-      model: "subcategory"
-    }, {
-      path: "brand_id",
-      model: "brand"
-    }, {
-      path: "attributes.attribute_id",
-      model: "attribute"
-    }, {
-      path: "attributes.values",
-      model: "attribute"
-    }]);
+      ...req.body,
+    });
     return res.status(201).json({
       success: true,
       status: 201,
       message: "Product added successfully",
-      data: product,
+      data: newproduct,
     });
   } catch (error) {
     console.log(error.message);
@@ -178,7 +176,7 @@ exports.UpdateProduct = async (req, res, next) => {
       warranty,
       is_publish,
     } = req.body;
-    const tempObject = {}
+    const tempObject = {};
     const exists = await Product.findOne({ _id: id });
     if (name) {
       if (await Product.exists({ name })) {
@@ -262,8 +260,9 @@ exports.DeleteAndRecoverProduct = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Product ${product.is_deleted ? "Delete" : "Recover"
-        }  Successful`,
+      message: `Product ${
+        product.is_deleted ? "Delete" : "Recover"
+      }  Successful`,
       data: product,
     });
   } catch (error) {
@@ -276,26 +275,35 @@ exports.DeleteAndRecoverProduct = async (req, res, next) => {
   }
 };
 
-
 exports.ActiveDeactiveVariation = async (req, res, next) => {
   const { id } = req.params;
-  const { variation_id, is_publish } = req.body
-  console.log(" is_publish", is_publish)
-  console.log(" variation_id", variation_id)
- 
-  try {
-    const product = await Product.findById(id)
-     if (!product) {
-      return res.status(404).json({ status: 404, success: false, message: "Product not found" })
-    }
-    const variation = product.price.find(price => price?._id.toString() === variation_id)
-    if (!variation) {
-      return res.status(404).json({ status: 404, success: false, message: "Variation not found" })
-    }
-    variation.is_publish = typeof is_publish === "boolean" ? is_publish : variation.is_publish
-    await product.save()
-    res.status(200).json({ status: 200, success: true, message: variation.name + " is updated" })
+  const { variation_id, is_publish } = req.body;
+  console.log(" is_publish", is_publish);
+  console.log(" variation_id", variation_id);
 
+  try {
+    const product = await Product.findById(id);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ status: 404, success: false, message: "Product not found" });
+    }
+    const variation = product.variation.find(
+      (variation) => variation?._id.toString() === variation_id
+    );
+    if (!variation) {
+      return res
+        .status(404)
+        .json({ status: 404, success: false, message: "Variation not found" });
+    }
+    variation.is_publish =
+      typeof is_publish === "boolean" ? is_publish : variation.is_publish;
+    await product.save();
+    res.status(200).json({
+      status: 200,
+      success: true,
+      message: variation.name + " is updated",
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({

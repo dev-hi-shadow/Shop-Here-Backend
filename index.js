@@ -21,6 +21,7 @@ app.use("/api/v1/sub-category", require("./Routes/SubCategory"));
 app.use("/api/v1/attribute", require("./Routes/Attribute"));
 app.use("/api/v1/brand", require("./Routes/Brand")); 
 app.use("/api/v1/unit", require("./Routes/Unit"));
+app.use("/api/v1/tax", require("./Routes/Tax"));
 app.use("/api/v1/role", require("./Routes/Role"));
 app.use("/api/v1/address", require("./Routes/Address"));
 app.use("/api/v1/product", require("./Routes/Product"));

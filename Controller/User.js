@@ -4,18 +4,27 @@ const User = require("../Model/User");
 exports.createUser = async (req, res, next) => {
   const { email, phone, name, password } = req.body;
   try {
+    const exists = await User.findOne({
+      $or: [{ email: email }, { phone: phone }],
+    });
+    if (exists) {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        error: "Email or Phone Already Registed",
+        message: "Please try again with different email or phone",
+      });
+    }
     const role_id = await Role.distinct("_id", { name: "USER" });
     let user = await User.create({ email, phone, name, password, role_id });
     const token = await user.GetAuthToken();
 
-    res
-      .status(201)
-      .json({
-        success: true,
-        status: 201,
-        message: "User registration successful",
-        data: { user, token: token },
-      });
+    res.status(201).json({
+      success: true,
+      status: 201,
+      message: "User registration successful",
+      data: { user, token: token },
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -27,7 +36,7 @@ exports.createUser = async (req, res, next) => {
 
 exports.loginUser = async (req, res, next) => {
   const { credential, password } = req.body;
-   try {
+  try {
     if (!credential || !password) {
       return res.status(401).json({
         success: false,
@@ -46,16 +55,16 @@ exports.loginUser = async (req, res, next) => {
     }
     const isMatch = await user.ComparePassword(password);
     if (!isMatch) {
-      res.status(400).json({ success: false, message: "Invalid credential" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credential" });
     }
     const token = await user.GetAuthToken();
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: credential + " Login Successful",
-        data: { user, token },
-      });
+    res.status(200).json({
+      success: true,
+      message: credential + " Login Successful",
+      data: { user, token },
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({
@@ -161,7 +170,6 @@ exports.DeleteAndRecoverProfile = async (req, res, next) => {
 
 exports.GetProfile = async (req, res, next) => {
   try {
-
     const user = await User.findById(req.user);
     if (!user) {
       return res.status(404).json({
@@ -178,7 +186,7 @@ exports.GetProfile = async (req, res, next) => {
 
 exports.logoutUser = async (req, res, next) => {
   try {
-    const user_id = req.user
+    const user_id = req.user;
     const user = await User.findById(user_id);
     if (!user) {
       return res.status(404).json({

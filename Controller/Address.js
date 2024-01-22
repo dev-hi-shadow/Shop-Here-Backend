@@ -4,9 +4,8 @@ exports.AddressCreate = async (req, res, next) => {
   try {
     const {
       name,
-      age,
-      phone,
-      second_phone,
+      primary_phone_no,
+      second_phone_no,
       profession,
       flat_block_no,
       building,
@@ -15,12 +14,12 @@ exports.AddressCreate = async (req, res, next) => {
       city,
       state,
       country,
+      is_pickup_address,
     } = req.body;
 
     if (
       !name ||
-      !age ||
-      !phone ||
+      !primary_phone_no ||
       !flat_block_no ||
       !society ||
       !city ||
@@ -32,21 +31,20 @@ exports.AddressCreate = async (req, res, next) => {
         error: "Please fill all the fields",
       });
     }
-
     const address = await Address.create({
       user_id: req.user,
       name,
-      age,
-      phone,
-      second_phone,
-      profession,
+      second_phone_no,
       flat_block_no,
-      building,
+      primary_phone_no,
+      profession,
       society,
-      landmark,
+      building,
       city,
-      state,
+      landmark,
       country,
+      state,
+      is_pickup_address
     });
     return res.status(201).json({
       success: true,
@@ -146,8 +144,9 @@ exports.DeleteAndRecoverAddress = async (req, res, next) => {
     res.status(200).json({
       success: true,
       status: 200,
-      message: `Address ${address.is_deleted ? "Delete" : "Recover"
-        }  Successful`,
+      message: `Address ${
+        address.is_deleted ? "Delete" : "Recover"
+      }  Successful`,
       data: brand,
     });
   } catch (error) {
