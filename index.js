@@ -10,7 +10,7 @@ app.use(cookieParser());
 app.use(express.json());
 Connect_MongoDB();
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL,
   credentials: true // Allow credentials (e.g., cookies)
 }));
 
